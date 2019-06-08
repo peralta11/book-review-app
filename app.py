@@ -30,6 +30,8 @@ db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/")
 def index():
+    ls = db.execute('select username, email from users').fetchall()
+    print(ls)
     return "Project 1 "
 
 class RegisterForm(Form):
@@ -52,12 +54,17 @@ def register():
         username = form.username.data
         password = sha256_crypt.encrypt(str(form.password.data))
         
-
-        db.execute("insert into users(name, email, username, password) values(:name, :email, :username, :password)",{"name":name, "email":email, "username":username, "password":password})
-        db.commit()
-        flash('registered','success')
+        check = db.execute('select username, email from users').fetchall()
+        for i in check:
+            if (username,email) == (i[0],i[1]):
+                flash('username or email already exists')
+                return redirect(url_for('register'))
+            else:
+                db.execute("insert into users(name, email, username, password) values(:name, :email, :username, :password)",{"name":name, "email":email, "username":username, "password":password})
+                db.commit()
+                flash('registered','success')
         
-    return render_template('login.html', form=form) 
+    return render_template('register.html', form=form) 
 # user_login
 
 @app.route('/login', methods=["GET","POST"])

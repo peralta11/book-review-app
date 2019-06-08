@@ -7,6 +7,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from functools import wraps
+import psycopg2
+
 
 app = Flask(__name__)
 
@@ -22,6 +24,8 @@ Session(app)
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
+
+
 
 
 @app.route("/")
@@ -52,9 +56,63 @@ def register():
         db.execute("insert into users(name, email, username, password) values(:name, :email, :username, :password)",{"name":name, "email":email, "username":username, "password":password})
         db.commit()
         flash('registered','success')
-        redirect(url_for('index'))
-    return render_template('register.html', form=form) 
+        
+    return render_template('login.html', form=form) 
+# user_login
+
+@app.route('/login', methods=["GET","POST"])
+def login():
+
     
+    if request.method == 'POST':
+        #get form fields
+        username = request.form['username']
+        password_candidate = request.form['password']
+
+        result = db.execute("select * from users where (username=:username)",{"username":username}).fetchone()
+        try:
+            #get stored hash
+            password = result['password']
+
+            #comapare password
+
+            if sha256_crypt.verify(password_candidate,password):
+                #passed
+                session['logged_in'] = True
+                session['username'] = username
+                flash('you are now logged in','success')
+                return redirect(url_for('dashboard'))
+
+            else:
+                error = 'invalid login'
+                return render_template("login.html",error=error)
+            db.close()
+        except:
+            error = "username not found"
+            return render_template('login.html',error=error)
+        
+
+    return render_template('login.html')  
+#check authorization
+def is_logged_in(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash('unauthorized acces, please login')
+            return redirect(url_for('login'))
+    return wrap
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return render_template('login.html')
+
+@app.route('/dashboard', methods=["GET","POST"])
+@is_logged_in
+def dashboard():
+    return render_template('dashboard.html')
 
 
 if __name__=='__main__':

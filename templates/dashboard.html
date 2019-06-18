@@ -1,4 +1,41 @@
 {% extends 'layout.html'%}
 {% block body %}
 <h1>DASHBOARD <small>Welcome {{session.username}}</small></h1>
+
+<div>
+    <form action = "{{url_for('dashboard')}}"method="post">
+    <input type="text" name="task_isbn" placeholder="isbn">
+    <button>search</button>
+    </form>
+</div>
+
+<div>
+    <form action = "{{url_for('dashboard')}}"method="post">
+    <input type="text" name="task_author" placeholder="author">
+    <button>search</button>
+    </form>
+</div>
+
+<div>
+    <form action = "{{url_for('dashboard')}}"method="post">
+    <input type="text" name="task_title" placeholder="title">
+    <button>search</button>
+    </form>
+</div>
+
+<div>
+    <form action = "{{url_for('dashboard')}}"method="post">
+    <input type="text" name="task_year" placeholder="year">
+    <button>search</button>
+    </form>
+</div>
+<div>
+<ul>
+    {% for i in result_books %}
+        <li>
+            {{i.isbn}}--{{i.author}}--{{i.title}}--{{i.year}}
+        </li>
+    {% endfor %}
+</ul>
+</div>
 {% endblock %}

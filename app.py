@@ -55,6 +55,7 @@ def register():
         password = sha256_crypt.encrypt(str(form.password.data))
         
         check = db.execute('select username, email from users').fetchall()
+        #print(type(check))--- list
         for i in check:
             if (username,email) == (i[0],i[1]):
                 flash('username or email already exists')
@@ -107,19 +108,31 @@ def is_logged_in(f):
         if 'logged_in' in session:
             return f(*args, **kwargs)
         else:
-            flash('unauthorized acces, please login')
+            flash('unauthorized access, please login')
             return redirect(url_for('login'))
     return wrap
 
 @app.route('/logout')
 def logout():
     session.clear()
-    return render_template('login.html')
+    return redirect(url_for('login'))
 
 @app.route('/dashboard', methods=["GET","POST"])
-@is_logged_in
+#@is_logged_in
 def dashboard():
-    return render_template('dashboard.html')
+
+    task_title = request.form.get('task_title')
+    task_author = request.form.get('task_author')
+    task_year = request.form.get('task_year')
+    task_isbn = request.form.get('task_isbn')
+
+    
+    result_books = db.execute('SELECT * FROM books WHERE (isbn=:isbn) OR (author=:author) OR (title=:title) OR (year=:year)',{"isbn":task_isbn, "author":task_author, "title":task_title, "year":task_year}).fetchall()
+    print(result_books)
+
+    return render_template('dashboard.html',result_books = result_books)
+
+
 
 
 if __name__=='__main__':

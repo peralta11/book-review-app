@@ -1,6 +1,6 @@
 import os
-
-from flask import Flask, session, render_template, request, flash, redirect, url_for, logging
+import requests
+from flask import Flask, session, render_template, request, flash, redirect, url_for, logging,jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -156,8 +156,14 @@ def booksreview(isbn):
         db.commit()
         return redirect(url_for('booksreview',isbn=isbn))
 
-
-    return render_template('booksreview.html', form=form, all_reviews=all_reviews, isbn=isbn, rv=rv)
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "COuZEDwalN3ZVOz3uPCCWw", "isbns": isbn})
+    rv = res.json()['books']
+    #rv is a list of dictionary
+    #extracting the dictionary from list
+    data = rv[0]
+    new_data = data['average_rating']
+    
+    return render_template('booksreview.html', form=form, all_reviews = all_reviews, isbn=isbn, new_data=new_data)
 
 
 

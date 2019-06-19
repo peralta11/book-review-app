@@ -2,7 +2,13 @@
 {% block body %}
 <div>
 <h1>Add Review</h1>
+{% for i in rv %}
+<p><h2>AUTHOR</h2> <h4> --{{i[0]}}</h4></p>
+<h2>TITLE</h2> <h4>--{{i[1]}}</h4>
+{% endfor %}
 {% from "includes/_formhelpers.html" import render_field %}
+
+
 <form method="POST" action="">
     <div class="form-group">
         {{ render_field(form.review, class_="form-control")}}
@@ -16,7 +22,8 @@
     
     {% for i in all_reviews %}
         {% if isbn==i.isbn %}
-            <li>{{i.isbn}}--{{i.author}}--{{i.title}}--{{i.userid}}--{{i.bookreview}}</li>
+            <p>USERNAME --{{i.userid}}</p>
+            <p>REVIEW --{{i.bookreview}}</p>
         {% endif %}
     {% endfor %}
     

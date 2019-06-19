@@ -33,7 +33,7 @@
 <ul>
     {% for i in result_books %}
         <li>
-            {{i.isbn}}--{{i.author}}--{{i.title}}--{{i.year}}
+            <a href="{{url_for('booksreview', isbn=i.isbn ) }}">{{i.isbn}}--{{i.author}}--{{i.title}}--{{i.year}}</a>
         </li>
     {% endfor %}
 </ul>

@@ -113,6 +113,7 @@ def is_logged_in(f):
     return wrap
 
 @app.route('/logout')
+#@is_logged_in
 def logout():
     session.clear()
     return redirect(url_for('login'))
@@ -131,6 +132,30 @@ def dashboard():
     print(result_books)
 
     return render_template('dashboard.html',result_books = result_books)
+
+
+class reviewform(Form):
+    review = TextAreaField('review', [validators.length(min=10)])
+
+
+@app.route('/booksreview/<isbn>', methods=["GET","POST"])
+#@is_logged_in
+def booksreview(isbn):
+    all_reviews = db.execute('select * from books, reviews where books.isbn = reviews.isbn')
+    db.execute('CREATE TABLE IF NOT EXISTS reviews (isbn VARCHAR, userid VARCHAR, bookreview VARCHAR)')
+    db.commit()
+
+
+    form = reviewform(request.form)
+    if request.method == 'POST' and form.validate():
+        review = form.review.data
+        #execute
+        db.execute('INSERT INTO reviews(isbn, bookreview, userid) VALUES(:isbn,:bookreview, :session)', {"isbn":isbn, "bookreview":review, "session":session['username']})
+        db.commit()
+        return redirect(url_for('booksreview',isbn=isbn))
+
+
+    return render_template('booksreview.html', form=form, all_reviews=all_reviews, isbn=isbn)
 
 
 

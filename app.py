@@ -141,9 +141,11 @@ class reviewform(Form):
 @app.route('/booksreview/<isbn>', methods=["GET","POST"])
 #@is_logged_in
 def booksreview(isbn):
-    all_reviews = db.execute('select * from books, reviews where books.isbn = reviews.isbn')
-    db.execute('CREATE TABLE IF NOT EXISTS reviews (isbn VARCHAR, userid VARCHAR, bookreview VARCHAR)')
+    
+    db.execute('CREATE TABLE IF NOT EXISTS reviews (id SERIAL PRIMARY KEY, isbn VARCHAR, userid VARCHAR, bookreview VARCHAR)')
     db.commit()
+    all_reviews = db.execute('select * from books, reviews where books.isbn = reviews.isbn')
+    rv = db.execute('select author, title from books where (isbn=:isbn)',{"isbn":isbn})
 
 
     form = reviewform(request.form)
@@ -155,7 +157,7 @@ def booksreview(isbn):
         return redirect(url_for('booksreview',isbn=isbn))
 
 
-    return render_template('booksreview.html', form=form, all_reviews=all_reviews, isbn=isbn)
+    return render_template('booksreview.html', form=form, all_reviews=all_reviews, isbn=isbn, rv=rv)
 
 
 

@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div>
+<h1>Add Review</h1>
+{% from "includes/_formhelpers.html" import render_field %}
+<form method="POST" action="">
+    <div class="form-group">
+        {{ render_field(form.review, class_="form-control")}}
+    </div>
+    <p><input class="btn btn-primary" type="submit" value="submit"></p>
+</form>
+</div>
+
+<div>
+    <ul>
+    
+    {% for i in all_reviews %}
+        {% if isbn==i.isbn %}
+            <li>{{i.isbn}}--{{i.author}}--{{i.title}}--{{i.userid}}--{{i.bookreview}}</li>
+        {% endif %}
+    {% endfor %}
+    
+</div>
+</ul>
+
+{% endblock %}

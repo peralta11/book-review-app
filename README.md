@@ -1,3 +1,3 @@
 # Project 1
 
-Web Programming with Python and JavaScript
+book-review-app with python-flask
